@@ -12,17 +12,6 @@ feature 'User signs up' do
     expect(page).to have_content "Password does not match the confirmation"
     end
 
-    def sign_up(email: 'stuff@what.com',
-             password: 'bananas',
-             password_confirmation: 'bananas')
-
-    visit '/users/new'
-    fill_in :email, with: email
-    fill_in :password, with: password
-    fill_in :password_confirmation, with: password_confirmation
-    click_button 'Sign up'
-  end
-
   scenario "I can't sign up without an email address" do
     expect { sign_up(email: nil) }.not_to change(User, :count)
     expect(current_path).to eq('/users')
@@ -43,7 +32,7 @@ feature 'User signs up' do
 
 end
 
-feature 'User sign in' do
+feature 'User signs in' do
 
   let(:user) do
     User.create(email: 'user@example.com',
@@ -56,15 +45,38 @@ feature 'User sign in' do
     expect(page).to have_content "Welcome #{user.email}"
   end
 
-  def sign_in(email:, password:)
-    visit '/sessions/new'
-    fill_in :email, with: email
-    fill_in :password, with: password
-    click_button 'Sign in'
-  end
-
     it 'does not authenticate when given an incorrect password' do
       expect(User.authenticate(user.email, 'wrong_stupid_password')).to be_nil
     end
 
 end
+
+feature 'User signs out' do
+
+  before(:each) do
+    User.create(email: 'test@test.com',
+                password: 'test',
+                password_confirmation: 'test')
+  end
+
+  scenario 'while being signed in' do
+    sign_in(email: 'test@test.com', password: 'test')
+    click_button 'Sign out'
+    expect(page).to have_content('Goodbye!')
+    expect(page).not_to have_content('Welcome, test@test.com')
+  end
+
+end
+
+
+
+
+
+
+
+
+
+
+
+
+
